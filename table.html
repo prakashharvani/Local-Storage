@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>table Example</title>
+  <script src="../jQuery/main/jquery.js"></script>
+	<style>
+table, th, td {
+    border: 1px solid black;
+    padding: 5px;
+}
+table {
+    border-spacing: 0px;
+}
+th:hover{
+
+  background-color : red;
+}
+</style>
+</head>
+<body>
+	<h1 style="text-align:center;">Local Storage Example</h1>
+<fieldset>
+	<legend>Insert Data</legend>
+	FirstName:<input type="text" name="FirstName" id="fname"><br>
+	LastName :<input type="text" name="LastName" id="lname"><br>
+	city     :<input type="text" name="City" id="city"><br>
+  Gender   :<input type="radio" value="Male" name="gender">Male
+            <input type="radio" value="Female" name="gender">Female
+            <br>
+  Country :<select id="countr">
+            <option value="none"> </option>
+            <option> India</option>
+            <option> Usa</option>
+            <option> Australia</option>
+            <option> Russia</option>
+          </select><br>
+  Languages Known:<input type="checkbox" name="language" value="Gujrati">Gujrati
+          <input type="checkbox" name="language" value="English">English
+          <input type="checkbox" name="language" value="Hindi">Hindi   <br>
+
+	<input type="button" name="Insert" value="Insert" onclick="insert()">
+  <input type="button" name="Reset" value="Reset" onclick="reset()">
+</fieldset>
+<br>
+<h1></h1>
+<br><br>
+<fieldset>
+  <legend> searching </legend>
+  enter city: <input type="search" name="csearch" onkeyup="citysearch()" id="csearch"><br>
+</fieldset>
+
+<br><br><br>
+		<table style="width:100%" id="mytable">
+  	<thead>
+  <tr>
+  	<th onclick="asort(0)">Id</th>
+    <th onclick="asort(1)">Firstname</th>
+    <th onclick="asort(2)">Lastname</th> 
+    <th onclick="asort(3)">City</th>
+    <th>Gender</th>
+    <th>Country</th>
+    <th>Language</th>
+  	<th>Action</th>
+  </tr>
+  </thead>
+  <tbody id="data">
+  
+  </tbody>
+</table>
+
+<script>
+(function(){
+display();
+})();
+  
+  $(document).ready(function(){
+  $("#data").on("keyup", function() {
+    var value = $(this).val().toLowerCase();
+    $("#myTable tr").filter(function() {
+      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+    });
+  });
+});
+
+  function display(){
+    var html ="";
+    var li=getlist();
+    if(li.length>0)
+    {
+    for (var i =0; i < li.length; i++) {
+      var removebtn="<input type='button' value='Remove' onclick='removetr("+ i+")'>";
+       html += "<tr> <td>"+(i+1)+"</td><td>"+li[i].fname+"</td><td>"+ li[i].lname+"</td><td>"+li[i].city+"</td><td>"+li[i].gender+"</td><td>"+li[i].country+"</td><td>"+li[i].language+"</td><td>"+ removebtn+"</td> </tr>";
+                 
+      }      
+    }
+    else{
+
+      html="<tr>Table is empty </tr>";
+    }
+    document.getElementById('data').innerHTML= html;
+ }
+
+
+	function insert()
+  {
+ var fname=document.getElementById('fname').value;
+ var lname=document.getElementById('lname').value;
+ var city=document.getElementById('city').value;
+ var country=document.getElementById('countr').value;
+
+  var language=document.querySelectorAll('input[type=checkbox]');
+var langs=[];
+for(i=0;i<language.length;i++)
+{
+  if(language[i].checked)
+  {
+    langs.push(language[i].value);
+  }
+}
+
+  var oRadio=document.querySelectorAll('input[type=radio]');
+  var gen;
+ for(var i = 0; i < oRadio.length; i++)
+   {
+      if(oRadio[i].checked)
+      {
+         gen= oRadio[i].value;
+      }
+   }
+
+
+  var obj={
+          fname:fname,
+          lname:lname,
+          city:city,
+          country:country,
+          language:langs,
+          gender:gen
+          }
+
+        var li=getlist();
+        li.push(obj);
+        localStorage.setItem("firstname",JSON.stringify(li));
+
+        document.getElementById("fname").value="";
+        document.getElementById("lname").value="";
+        document.getElementById("city").value="";
+        document.getElementById('countr').value="none";
+        display();
+  }
+
+  function getlist()
+  {
+    var localstorage = localStorage.getItem('firstname');
+
+    if(localstorage)
+    {
+      return JSON.parse(localstorage);
+    }
+    else{
+      return [];
+    }
+  }
+
+  function reset()
+  {
+    document.getElementById('fname').value="";
+     document.getElementById('lname').value="";
+      document.getElementById('city').value="";
+      document.getElementById('countr').value="none";
+  }
+
+ function removetr(index){
+  var li=getlist();
+  li.splice(index,1);
+  localStorage.setItem('firstname',JSON.stringify(li));
+  display();
+  }
+  
+
+ function asort(n)
+ {
+   var table, rows, switching, i, x, y, shouldSwitch;
+  table = document.getElementById("mytable");
+  switching = true;
+   while (switching) {
+       switching = false;
+    rows = table.rows;
+       for (i = 1; i < (rows.length - 1); i++) {
+          shouldSwitch = false;
+      x = 	
+      y = rows[i + 1].getElementsByTagName("TD")[n];
+    
+      if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+        shouldSwitch = true;
+        break;
+      }
+    }
+    if (shouldSwitch) {
+       rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+      switching = true;
+    }
+  }
+ }
+
+function citysearch()
+{
+var  table,input,tr,td,i,f;
+input=document.getElementById('csearch');
+f=input.value.toUpperCase();
+table=document.getElementById('mytable');
+tr=table.getElementsByTagName('tr');
+
+    for(i=0;i<tr.length;i++)
+    {
+      td=tr[i].getElementsByTagName('td')[3];
+      if(td)
+        {
+          if(td.innerHTML.toUpperCase().indexOf(f)>-1)
+          {
+            tr[i].style.display="";
+          }
+          else{
+            tr[i].style.display="none";
+          }
+        }
+    }
+}
+
+</script>
+</body>
+</html>
